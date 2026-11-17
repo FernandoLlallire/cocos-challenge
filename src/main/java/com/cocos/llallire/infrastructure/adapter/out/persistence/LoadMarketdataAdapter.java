@@ -2,15 +2,25 @@ package com.cocos.llallire.infrastructure.adapter.out.persistence;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
 import com.cocos.llallire.aplication.port.out.LoadMarketdataPort;
 import com.cocos.llallire.domain.model.Marketdata;
+import com.cocos.llallire.infrastructure.adapter.out.persistence.mapper.EntityMapper;
+import com.cocos.llallire.infrastructure.adapter.out.persistence.repository.MarketdataRepository;
 
+@Component
 public class LoadMarketdataAdapter implements LoadMarketdataPort {
 
-    @Override
-    public Optional<Marketdata> loadMarketdataByInstrumentId(String instrumentId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'loadMarketdataByInstrumentId'");
+    private final MarketdataRepository marketdataRepository;
+
+    public LoadMarketdataAdapter(MarketdataRepository marketdataRepository) {
+        this.marketdataRepository = marketdataRepository;
     }
-    
+
+    @Override
+    public Optional<Marketdata> loadMarketdataByInstrumentId(Long instrumentId) {
+        return marketdataRepository.findFirstByInstrument_IdOrderByDateDescIdDesc(instrumentId)
+            .map(EntityMapper::toDomain);
+    }
 }

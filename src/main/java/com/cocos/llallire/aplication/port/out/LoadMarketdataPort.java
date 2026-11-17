@@ -5,5 +5,5 @@ import java.util.Optional;
 import com.cocos.llallire.domain.model.Marketdata;
 
 public interface LoadMarketdataPort {
-    Optional<Marketdata> loadMarketdataByInstrumentId(String instrumentId);
+    Optional<Marketdata> loadMarketdataByInstrumentId(Long instrumentId);
 }
