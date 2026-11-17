@@ -5,7 +5,5 @@ import java.util.List;
 import com.cocos.llallire.domain.model.Instrument;
 
 public interface LoadInstrumentPort {
-    List<Instrument> loadInstrumentByName(String name);
-    List<Instrument> loadInstrumentByTicker(String ticker);
-
+    List<Instrument> loadInstrumentByNameOrTicker(String query);
 }

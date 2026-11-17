@@ -1,0 +1,6 @@
+package com.cocos.llallire.infrastructure.adapter.in.web;
+
+public final class ApiPaths {
+
+    public static final String V1 = "/api/v1";
+}

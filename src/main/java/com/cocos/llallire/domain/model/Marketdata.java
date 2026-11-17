@@ -13,4 +13,7 @@ public record Marketdata(
     BigDecimal previousClose,
     LocalDate date
 ) {
+    public BigDecimal performanceRate() {
+        return Returns.percentChange(previousClose, close);
+    }
 }

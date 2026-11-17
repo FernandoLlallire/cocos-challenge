@@ -2,9 +2,8 @@ package com.cocos.llallire.aplication.port.in;
 
 import java.util.List;
 
-import com.cocos.llallire.domain.model.Instrument;
+import com.cocos.llallire.aplication.dto.InstrumentInformation;
 
 public interface SearchInstrumentUseCase {
-    List<Instrument> searchInstrumentsByName(String name);
-    List<Instrument> searchInstrumentsByTicker(String ticker);
+    List<InstrumentInformation> searchInstruments(String query);
 }
