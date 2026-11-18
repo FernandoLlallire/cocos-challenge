@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cocos.llallire.aplication.dto.InstrumentInformation;
-import com.cocos.llallire.aplication.port.in.SearchInstrumentUseCase;
+import com.cocos.llallire.application.dto.InstrumentInformation;
+import com.cocos.llallire.application.port.in.SearchInstrumentUseCase;
 
 @RestController
 @RequestMapping (path = ApiPaths.V1 + "/instruments")
@@ -20,6 +20,6 @@ public class InstrumentController {
     }
     @GetMapping 
     public ResponseEntity<List<InstrumentInformation>> getInstruments(@RequestParam(required = false) String query) {
-        return ResponseEntity.ok(searchInstrumentUseCase.searchInstruments(query));
+        return ResponseEntity.ok(searchInstrumentUseCase.execute(query));
     }
 }

@@ -1,4 +1,4 @@
-package com.cocos.llallire.domain.model;
+package com.cocos.llallire.domain.shared;
 
 import java.math.BigDecimal;
 

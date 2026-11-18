@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import com.cocos.llallire.aplication.port.out.LoadMarketdataPort;
+import com.cocos.llallire.application.port.out.LoadMarketdataPort;
 import com.cocos.llallire.domain.model.Marketdata;
 import com.cocos.llallire.infrastructure.adapter.out.persistence.mapper.EntityMapper;
 import com.cocos.llallire.infrastructure.adapter.out.persistence.repository.MarketdataRepository;

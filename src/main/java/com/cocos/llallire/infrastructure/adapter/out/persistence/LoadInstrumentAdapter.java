@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.cocos.llallire.aplication.port.out.LoadInstrumentPort;
+import com.cocos.llallire.application.port.out.LoadInstrumentPort;
 import com.cocos.llallire.domain.model.Instrument;
 import com.cocos.llallire.infrastructure.adapter.out.persistence.entity.InstrumentEntity;
 import com.cocos.llallire.infrastructure.adapter.out.persistence.mapper.EntityMapper;

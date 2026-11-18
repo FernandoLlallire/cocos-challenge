@@ -1,4 +1,4 @@
-package com.cocos.llallire.aplication.dto;
+package com.cocos.llallire.application.dto;
 
 import java.math.BigDecimal;
 

@@ -3,6 +3,8 @@ package com.cocos.llallire.domain.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.cocos.llallire.domain.shared.Returns;
+
 public record Marketdata(
     Long id,
     Long instrumentId,

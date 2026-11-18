@@ -1,14 +1,14 @@
-package com.cocos.llallire.aplication.service;
+package com.cocos.llallire.application.service;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.cocos.llallire.aplication.dto.InstrumentInformation;
-import com.cocos.llallire.aplication.port.in.SearchInstrumentUseCase;
-import com.cocos.llallire.aplication.port.out.LoadInstrumentPort;
-import com.cocos.llallire.aplication.port.out.LoadMarketdataPort;
+import com.cocos.llallire.application.dto.InstrumentInformation;
+import com.cocos.llallire.application.port.in.SearchInstrumentUseCase;
+import com.cocos.llallire.application.port.out.LoadInstrumentPort;
+import com.cocos.llallire.application.port.out.LoadMarketdataPort;
 import com.cocos.llallire.domain.model.Instrument;
 import com.cocos.llallire.domain.model.Marketdata;
 
@@ -23,7 +23,7 @@ public class SearchInstrument implements SearchInstrumentUseCase {
     }
 
     @Override
-    public List<InstrumentInformation> searchInstruments(String query) {
+    public List<InstrumentInformation> execute(String query) {
         return loadInstrumentPort.loadInstrumentByNameOrTicker(query)
                 .stream()
                 .map(this::toInformation)
