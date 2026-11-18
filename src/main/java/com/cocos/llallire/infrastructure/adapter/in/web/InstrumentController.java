@@ -12,13 +12,15 @@ import com.cocos.llallire.application.dto.InstrumentInformation;
 import com.cocos.llallire.application.port.in.SearchInstrumentUseCase;
 
 @RestController
-@RequestMapping (path = ApiPaths.V1 + "/instruments")
+@RequestMapping(path = ApiPaths.V1 + "/instruments")
 public class InstrumentController {
     private final SearchInstrumentUseCase searchInstrumentUseCase;
+
     public InstrumentController(SearchInstrumentUseCase searchInstrumentUseCase) {
         this.searchInstrumentUseCase = searchInstrumentUseCase;
     }
-    @GetMapping 
+
+    @GetMapping
     public ResponseEntity<List<InstrumentInformation>> getInstruments(@RequestParam(required = false) String query) {
         return ResponseEntity.ok(searchInstrumentUseCase.execute(query));
     }

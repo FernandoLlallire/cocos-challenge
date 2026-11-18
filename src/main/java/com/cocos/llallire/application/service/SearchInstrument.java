@@ -3,8 +3,6 @@ package com.cocos.llallire.application.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
 import com.cocos.llallire.application.dto.InstrumentInformation;
 import com.cocos.llallire.application.port.in.SearchInstrumentUseCase;
 import com.cocos.llallire.application.port.out.LoadInstrumentPort;
@@ -12,7 +10,6 @@ import com.cocos.llallire.application.port.out.LoadMarketdataPort;
 import com.cocos.llallire.domain.model.Instrument;
 import com.cocos.llallire.domain.model.Marketdata;
 
-@Service
 public class SearchInstrument implements SearchInstrumentUseCase {
     private final LoadInstrumentPort loadInstrumentPort;
     private final LoadMarketdataPort loadMarketdataPort;

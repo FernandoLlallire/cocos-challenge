@@ -1,5 +1,7 @@
 package com.cocos.llallire.application.port.in;
 
+import com.cocos.llallire.application.dto.PortfolioInformation;
+
 public interface GetPortfolioUseCase {
-    List<PortfolioInformation> execute(String userId);
+    PortfolioInformation execute(String userId);
 }
