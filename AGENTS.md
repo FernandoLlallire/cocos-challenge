@@ -7,7 +7,6 @@ Deeper context lives in [`docs/agents/`](docs/agents/):
 
 - [`decisions.md`](docs/agents/decisions.md) — why the code is the way it is (decision log). **Do not reverse a
   decision without discussing it with the maintainer.**
-- [`session-log.md`](docs/agents/session-log.md) — what was analysed and changed in each agent session.
 
 ## 1. Project
 
@@ -15,6 +14,8 @@ Backend challenge for Cocos ([`backend-challenge.md`](backend-challenge.md)): a 
 search instruments, place orders (MARKET/LIMIT, BUY/SELL, CASH_IN/CASH_OUT) and cancel pending orders.
 
 - Java 25, Spring Boot 4.1 (Web MVC, Data JPA, Data Redis), PostgreSQL 16, Redis 7, Lombok (JPA entities only).
+- API docs: springdoc-openapi 3.2 → Swagger UI at `/swagger-ui.html`, OpenAPI document at `/v3/api-docs`.
+  Request collections: `api.http` (REST Client) and `postman/cocos-api.postman_collection.json` (Postman v2.1).
 - Observability: OpenTelemetry Java agent (attached in the image) + `grafana/otel-lgtm` (Grafana, Prometheus, Loki,
   Tempo, OTel Collector). The app depends only on `opentelemetry-api`.
 - Local environment with Docker **or** Podman (auto-detected by the Makefile); the API image is built by the
@@ -46,7 +47,7 @@ make test               # ./mvnw test; no PostgreSQL or Redis needed
 - Grafana's HTTP API is reachable without login (anonymous admin in otel-lgtm); query data sources through
   `http://localhost:3000/api/datasources/proxy/uid/{prometheus|loki|tempo}/...` to verify telemetry.
 - Configuration is environment-only (`DB_*`, `CACHE_TYPE`, `REDIS_*`, `SPRING_DATA_REDIS_*`, `APP_CACHE_TTL_*`,
-  `CACHE_FAILURE_COOLDOWN`); see `.env.example` and the README "Variables de entorno".
+  `CACHE_FAILURE_COOLDOWN`, `API_DOCS_ENABLED`); see `.env.example` and the README "Variables de entorno".
 
 Always run `./mvnw test` before declaring a change done. Report failures honestly.
 
@@ -65,13 +66,15 @@ application/     depends only on domain. No Spring annotations.
   service/       use case implementations: orchestrate only (load → delegate to domain → persist)
   dto/           commands (input) and *Information records (output)
 infrastructure/  Spring and JPA.
-  adapter/in/web/           controllers, request bodies, GlobalExceptionHandler (ProblemDetail, RFC 9457)
+  adapter/in/web/           controllers, request bodies, GlobalExceptionHandler (ProblemDetail, RFC 9457),
+                            OpenApiExamples (JSON examples used by the OpenAPI annotations)
   adapter/out/persistence/  JPA entities, Spring Data repositories, *PersistenceAdapter, EntityMapper
   adapter/out/cache/        Caching*Port decorators, PortfolioCacheAdapter, CacheRegion, CacheCircuitBreaker,
                             TypedJsonRedisSerializer, CacheNames
   config/                   DomainConfig (domain beans, Clock), UseCasesConfig (wiring + TransactionTemplate),
                             CacheConfig (CacheManager, @Primary cached ports), AppCacheProperties,
-                            ObservabilityConfig (OpenTelemetry, UseCaseTelemetry, OrderMetrics, CacheMetrics)
+                            ObservabilityConfig (OpenTelemetry, UseCaseTelemetry, OrderMetrics, CacheMetrics),
+                            OpenApiConfig (API info + descriptions of the application response DTOs)
   observability/            UseCaseTelemetry (span + cocos.usecase.duration), OrderMetrics,
                             ObservedPlaceOrderUseCase / ObservedCancelOrderUseCase (decorators)
 observability/grafana/      Grafana provisioning file + dashboards (cocos-api.json), mounted into cocos-otel
@@ -82,7 +85,8 @@ observability/grafana/      Grafana provisioning file + dashboards (cocos-api.js
 - Transactions are added in `UseCasesConfig` with `TransactionTemplate` decorators, not with `@Transactional`
   in the application layer.
 - New use case checklist: port/in interface → service in application → bean + transaction in `UseCasesConfig` →
-  controller → exception mapping if a new exception type appears → unit + functional tests → README + this file.
+  controller → exception mapping if a new exception type appears → OpenAPI docs → request collections →
+  unit + functional tests → README + this file.
 - JPA entities map foreign keys as plain `Long` ids (no `@ManyToOne`/`@OneToMany`).
 - Avoid N+1: load collections with batch port methods (`loadInstrumentsByIds`, `loadLastMarketdataByInstrumentIds`).
 - **Observability rules:**
@@ -97,6 +101,15 @@ observability/grafana/      Grafana provisioning file + dashboards (cocos-api.js
     returns data against a running stack before finishing.
   - Telemetry goes out over OTLP only; switching to Datadog/New Relic/Grafana Cloud must stay a configuration
     change (`OTEL_EXPORTER_OTLP_*`).
+- **API documentation rules:**
+  - Controllers and request bodies (`adapter/in/web`) carry the springdoc/Swagger annotations (`@Tag`, `@Operation`,
+    `@ApiResponse` per status code, `@Schema` on request fields). Examples are constants in `OpenApiExamples`,
+    built from the seed data.
+  - Response DTOs live in `application/dto` and must stay annotation-free: document their fields in
+    `OpenApiConfig.responseDocs()`. A renamed field makes the document fail, and `OpenApiFunctionalTest` catches it.
+  - `springdoc.override-with-generic-response=false`: each endpoint declares only the error codes it can return.
+  - A new or changed endpoint also updates `api.http` and the Postman collection
+    (`postman/cocos-api.postman_collection.json`), keeping the same examples.
 - **Cache rules:**
   - Reference data (users, instruments, searches, marketdata) is cached by `Caching*Port` decorators of the outbound
     ports, registered as `@Primary` in `CacheConfig`. Use cases do not know about it.

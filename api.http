@@ -1,5 +1,6 @@
 ### Collection for the REST Client extension (VS Code) or the IntelliJ HTTP client.
 ### Examples use the data in database.sql (user 1, PAMP = instrument 47, ARS = instrument 66).
+### Same examples: Swagger UI (http://localhost:8080/swagger-ui.html) and postman/cocos-api.postman_collection.json.
 
 @baseUrl = http://localhost:8080/api/v1
 

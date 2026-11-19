@@ -228,3 +228,45 @@ entry that supersedes the old one (and mark the old one as superseded) instead o
   - recent traces (Tempo).
 - **Consequences:** queries use the Prometheus names produced by the OTLP translation (`_total`, unit suffixes);
   they were verified against a running stack (33 queries, all returning data).
+
+## D-026 — OpenAPI with springdoc; response DTOs documented from infrastructure
+
+- **Context:** the maintainer asked for Swagger docs for every endpoint (with the examples of `api.http` and the
+  meaning of each DTO field) and a Postman collection.
+- **Decision:**
+  - `springdoc-openapi-starter-webmvc-ui` 3.2.0 (the 3.x line targets Spring Boot 4; 3.2.0 is built against Boot
+    4.1.2). Swagger UI at `/swagger-ui.html`, document at `/v3/api-docs`.
+  - Controllers and `PlaceOrderRequest` (infrastructure) are annotated; examples are constants in
+    `OpenApiExamples` with values from the seed.
+  - The response DTOs are in `application/dto`, which must not depend on frameworks (D-001), so they are not
+    annotated: `OpenApiConfig` adds their field descriptions with an `OpenApiCustomizer` that fails if a
+    documented schema/property no longer exists (guarded by `OpenApiFunctionalTest`).
+  - `springdoc.override-with-generic-response=false` so the `GlobalExceptionHandler` statuses are not added to
+    every operation; each endpoint lists only its own error codes.
+  - The Postman collection (`postman/cocos-api.postman_collection.json`, v2.1) mirrors `api.http`, adds error
+    cases, saved example responses and status-code tests.
+- **Consequences:** the docs are public on the API port (no auth in this project). Field documentation of the
+  response DTOs is kept by name in `OpenApiConfig`, away from the records. Verified: every request of the Postman
+  collection returned the expected status against the app on a throwaway PostgreSQL with the seed.
+
+## D-027 — Spring MVC client errors keep their status in `GlobalExceptionHandler`
+
+- **Context:** the catch-all `@ExceptionHandler(Exception.class)` also caught Spring MVC's own exceptions, so an
+  unknown path (`NoResourceFoundException`) answered 500 and was logged at ERROR as "Unexpected error". It showed
+  up in Loki when `/v3/api-docs` was requested on an API image built before springdoc was added.
+- **Decision:** in the catch-all, exceptions implementing `org.springframework.web.ErrorResponse` (unknown path
+  → 404, wrong method → 405, unsupported media type → 415, missing parameter → 400, ...) return their own
+  `ProblemDetail` and are logged at INFO. Everything else stays 500 + ERROR.
+- **Consequences:** public behaviour change for invalid requests only (500 → correct 4xx); no change for valid
+  endpoints. Error logs and error spans now mean real server failures. Guarded by `ErrorHandlingFunctionalTest`.
+
+## D-028 — Quiet startup: no Redis repositories, API docs behind a switch
+
+- **Context:** two startup log lines in Loki. Spring Data Redis (INFO) scanned the JPA repositories because both
+  Spring Data modules are on the classpath, although Redis is only used as a cache. springdoc (WARN) reported that
+  Swagger UI is enabled by default; springdoc 3.2.0 logs it whenever the UI is enabled, even if set explicitly.
+- **Decision:** `spring.data.redis.repositories.enabled=false`. `springdoc.api-docs.enabled` and
+  `springdoc.swagger-ui.enabled` read `API_DOCS_ENABLED` (default `true`, the docs are part of the challenge), and
+  the `SpringDocAppInitializer` logger is set to ERROR because the exposure is now an explicit setting.
+- **Consequences:** no behaviour change by default. `API_DOCS_ENABLED=false` hides the docs in production. If
+  Redis repositories are ever needed, remove the property.

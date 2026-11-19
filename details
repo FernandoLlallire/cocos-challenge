@@ -1,7 +1,0 @@
-curl get instrument
-
-curl --location 'localhost:8080/api/v1/instruments?query=peso'
-
-Si es que no se agreg query, se busca todos los instrumentos por nombre o token
-si el instrumento exite se buscan el ultimo marketdata, y se calcula el rendimiento diaria de ese record
-((valor cierre actual - valor cierre anterior)/valor cierre anterior)*100

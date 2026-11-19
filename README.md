@@ -94,6 +94,7 @@ La API se configura **solo** con variables de entorno, así que el mismo build p
 | `REDIS_TIMEOUT` / `REDIS_CONNECT_TIMEOUT` | `500ms` / `1s` | Timeouts cortos: si Redis responde lento, la API sigue con la base. |
 | `CACHE_FAILURE_COOLDOWN` | `30s` | Tiempo que se deja de usar Redis después de un error (circuit breaker). |
 | `APP_CACHE_TTL_USERS`, `APP_CACHE_TTL_INSTRUMENTS`, `APP_CACHE_TTL_INSTRUMENT_SEARCH`, `APP_CACHE_TTL_MARKETDATA`, `APP_CACHE_TTL_PORTFOLIO` | `1h`, `1h`, `10m`, `1m`, `5m` | TTL de cada región del cache (ver [Cache](#cache)). |
+| `API_DOCS_ENABLED` | `true` | `false` deshabilita Swagger UI y `/v3/api-docs` (por ejemplo, en producción). |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4318` | Destino de la telemetría (OTLP/HTTP): la observabilidad local, Datadog, New Relic, Grafana Cloud, etc. |
 | `OTEL_EXPORTER_OTLP_HEADERS` | — | Credenciales del proveedor, por ejemplo `api-key=…` en New Relic. |
 | `OTEL_SERVICE_NAME` / `OTEL_RESOURCE_ATTRIBUTES` | `cocos-api` / `service.namespace=cocos,deployment.environment.name=local` | Nombre del servicio y atributos (entorno, versión) con los que se agrupa la telemetría. |
@@ -149,15 +150,30 @@ No necesitan PostgreSQL, Redis ni la observabilidad:
 - los tests funcionales usan H2 en memoria en modo PostgreSQL, cargada con el mismo `database.sql`;
 - el cache corre en memoria.
 
-### Colección de requests
+### Documentación interactiva (Swagger) y colecciones de requests
 
-[`api.http`](api.http) tiene ejemplos de todos los endpoints. Se usa con la extensión **REST Client** de VS Code o con el cliente HTTP de IntelliJ.
+Con la API levantada:
+
+| Qué                    | URL                                          |
+|------------------------|----------------------------------------------|
+| Swagger UI             | http://localhost:8080/swagger-ui.html        |
+| Documento OpenAPI 3    | http://localhost:8080/v3/api-docs            |
+
+Swagger documenta cada endpoint con su descripción, los campos de cada DTO (de entrada y de salida), los enums posibles, los códigos de respuesta y ejemplos con los datos del seed (user 1, PAMP = instrumento 47, ARS = instrumento 66). Desde ahí se pueden probar los requests con *Try it out*.
+
+Colecciones con los mismos ejemplos:
+
+- [`postman/cocos-api.postman_collection.json`](postman/cocos-api.postman_collection.json): colección de **Postman** (v2.1). Se importa con *Import → File*. Usa la variable de colección `baseUrl` (por defecto `http://localhost:8080/api/v1`). Cada request tiene una respuesta de ejemplo guardada y tests que verifican el status code; "LIMIT buy" guarda el id creado en `lastOrderId` para que "Cancel the last LIMIT order" lo cancele.
+- [`api.http`](api.http): para la extensión **REST Client** de VS Code o el cliente HTTP de IntelliJ.
+
+Los requests que crean o cancelan órdenes modifican la base: "Cancel a NEW order (seed order 5)" funciona una sola vez por base.
 
 ---
 
 ## Endpoints
 
 Base: `/api/v1`. Los errores se devuelven en formato [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457).
+La referencia completa (campos, enums, ejemplos) está en Swagger UI: `/swagger-ui.html` (ver [Documentación interactiva](#documentación-interactiva-swagger-y-colecciones-de-requests)).
 
 | Método | Ruta                       | Descripción                         | Respuestas                    |
 |--------|----------------------------|-------------------------------------|-------------------------------|

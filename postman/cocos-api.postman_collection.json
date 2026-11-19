@@ -1,0 +1,1455 @@
+{
+  "info": {
+    "name": "Cocos Challenge API",
+    "description": "Portfolio, instrument search and orders. Examples use the seed in database.sql (user 1, PAMP = instrument 47, ARS = instrument 66). Set `baseUrl` if the API is not on localhost:8080. The OpenAPI document is at /v3/api-docs and Swagger UI at /swagger-ui.html.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Portfolio",
+      "description": "Cash and positions of a user, derived from their orders.",
+      "item": [
+        {
+          "name": "Portfolio of user 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has positions\", () => pm.expect(pm.response.json().positions).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/portfolio/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "portfolio",
+                "1"
+              ]
+            },
+            "description": "Total account value, cash available to trade and positions (FILLED orders, weighted average cost). Seed user 1: balance 753,000; pending LIMIT buys reserve 125,500 → available 627,500."
+          },
+          "response": [
+            {
+              "name": "200 - User 1 (seed)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/portfolio/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "portfolio",
+                    "1"
+                  ]
+                },
+                "description": "Total account value, cash available to trade and positions (FILLED orders, weighted average cost). Seed user 1: balance 753,000; pending LIMIT buys reserve 125,500 → available 627,500."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"totalAccountValue\": 904784.0,\n  \"availableCash\": 627500.0,\n  \"positions\": [\n    {\n      \"instrumentId\": 54,\n      \"ticker\": \"METR\",\n      \"name\": \"MetroGAS S.A.\",\n      \"quantity\": 500,\n      \"marketValue\": 114750.0,\n      \"totalReturnPct\": -8.2\n    },\n    {\n      \"instrumentId\": 47,\n      \"ticker\": \"PAMP\",\n      \"name\": \"Pampa Holding S.A.\",\n      \"quantity\": 40,\n      \"marketValue\": 37034.0,\n      \"totalReturnPct\": -0.45\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Portfolio of a user without orders",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/portfolio/2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "portfolio",
+                "2"
+              ]
+            },
+            "description": "Seed user 2 has no orders."
+          },
+          "response": [
+            {
+              "name": "200 - Empty",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/portfolio/2",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "portfolio",
+                    "2"
+                  ]
+                },
+                "description": "Seed user 2 has no orders."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"totalAccountValue\": 0,\n  \"availableCash\": 0,\n  \"positions\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Unknown user -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/portfolio/999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "portfolio",
+                "999"
+              ]
+            },
+            "description": "Returns an RFC 9457 problem."
+          },
+          "response": [
+            {
+              "name": "404 - Unknown user",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/portfolio/999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "portfolio",
+                    "999"
+                  ]
+                },
+                "description": "Returns an RFC 9457 problem."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"title\": \"Resource not found\",\n  \"status\": 404,\n  \"detail\": \"User 999 not found\",\n  \"instance\": \"/api/v1/portfolio/999\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Non-numeric user id -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/portfolio/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "portfolio",
+                "abc"
+              ]
+            },
+            "description": "Path parameter with an invalid type."
+          },
+          "response": [
+            {
+              "name": "400 - Invalid id",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/portfolio/abc",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "portfolio",
+                    "abc"
+                  ]
+                },
+                "description": "Path parameter with an invalid type."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"Parameter 'userId' has an invalid value\",\n  \"instance\": \"/api/v1/portfolio/abc\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Instruments",
+      "description": "Search of tradable assets.",
+      "item": [
+        {
+          "name": "Search by ticker or name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/instruments?query=pamp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "instruments"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "pamp"
+                }
+              ]
+            },
+            "description": "Partial, case-insensitive match on the ticker or the name. Sorted by ticker. dailyReturnPct = (close - previousClose) / previousClose * 100."
+          },
+          "response": [
+            {
+              "name": "200 - query=pamp",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/instruments?query=pamp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "instruments"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "pamp"
+                    }
+                  ]
+                },
+                "description": "Partial, case-insensitive match on the ticker or the name. Sorted by ticker. dailyReturnPct = (close - previousClose) / previousClose * 100."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 47,\n    \"ticker\": \"PAMP\",\n    \"name\": \"Pampa Holding S.A.\",\n    \"type\": \"ACCIONES\",\n    \"lastPrice\": 925.85,\n    \"dailyReturnPct\": 0.44\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Search the currency (no marketdata)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/instruments?query=pesos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "instruments"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "pesos"
+                }
+              ]
+            },
+            "description": "Instruments without marketdata return lastPrice and dailyReturnPct as null."
+          },
+          "response": [
+            {
+              "name": "200 - query=pesos",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/instruments?query=pesos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "instruments"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "pesos"
+                    }
+                  ]
+                },
+                "description": "Instruments without marketdata return lastPrice and dailyReturnPct as null."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 66,\n    \"ticker\": \"ARS\",\n    \"name\": \"PESOS\",\n    \"type\": \"MONEDA\",\n    \"lastPrice\": null,\n    \"dailyReturnPct\": null\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "List all instruments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/instruments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "instruments"
+              ]
+            },
+            "description": "Without query returns every instrument (66 in the seed)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "description": "Send orders and cancel pending ones. A business rejection (insufficient cash or shares) is stored with status REJECTED and still returns 201: check `status`. Malformed requests return 400 and are not stored.",
+      "item": [
+        {
+          "name": "MARKET buy by size",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Order status is FILLED\", () => pm.expect(pm.response.json().status).to.eql(\"FILLED\"));",
+                  "pm.collectionVariables.set(\"lastOrderId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Executes at the latest close (PAMP 925.85) -> FILLED.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"MARKET\",\n  \"size\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 - FILLED",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                },
+                "description": "Executes at the latest close (PAMP 925.85) -> FILLED.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"MARKET\",\n  \"size\": 10\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/orders/12"
+                }
+              ],
+              "body": "{\n  \"id\": 12,\n  \"instrumentId\": 47,\n  \"userId\": 1,\n  \"side\": \"BUY\",\n  \"type\": \"MARKET\",\n  \"size\": 10,\n  \"price\": 925.85,\n  \"status\": \"FILLED\",\n  \"dateTime\": \"2026-11-19T11:30:20.132\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "MARKET buy by amount",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "size = floor(amount / close) = floor(10000 / 925.85) = 10.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"MARKET\",\n  \"amount\": 10000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 - FILLED",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                },
+                "description": "size = floor(amount / close) = floor(10000 / 925.85) = 10.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"MARKET\",\n  \"amount\": 10000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/orders/12"
+                }
+              ],
+              "body": "{\n  \"id\": 13,\n  \"instrumentId\": 47,\n  \"userId\": 1,\n  \"side\": \"BUY\",\n  \"type\": \"MARKET\",\n  \"size\": 10,\n  \"price\": 925.85,\n  \"status\": \"FILLED\",\n  \"dateTime\": \"2026-11-19T11:30:41.008\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "LIMIT buy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Order status is NEW\", () => pm.expect(pm.response.json().status).to.eql(\"NEW\"));",
+                  "pm.collectionVariables.set(\"lastOrderId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Stays NEW and reserves size * price (5 x 900.50) of the available cash. Stores the id in {{lastOrderId}} so it can be cancelled.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"LIMIT\",\n  \"size\": 5,\n  \"price\": 900.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 - NEW",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                },
+                "description": "Stays NEW and reserves size * price (5 x 900.50) of the available cash. Stores the id in {{lastOrderId}} so it can be cancelled.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"LIMIT\",\n  \"size\": 5,\n  \"price\": 900.5\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/orders/12"
+                }
+              ],
+              "body": "{\n  \"id\": 14,\n  \"instrumentId\": 47,\n  \"userId\": 1,\n  \"side\": \"BUY\",\n  \"type\": \"LIMIT\",\n  \"size\": 5,\n  \"price\": 900.5,\n  \"status\": \"NEW\",\n  \"dateTime\": \"2026-11-19T11:31:02.410\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "MARKET sell",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "FILLED if the user holds enough available shares; otherwise stored as REJECTED (still 201).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"SELL\",\n  \"type\": \"MARKET\",\n  \"size\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 - FILLED",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                },
+                "description": "FILLED if the user holds enough available shares; otherwise stored as REJECTED (still 201).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"SELL\",\n  \"type\": \"MARKET\",\n  \"size\": 5\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/orders/12"
+                }
+              ],
+              "body": "{\n  \"id\": 15,\n  \"instrumentId\": 47,\n  \"userId\": 1,\n  \"side\": \"SELL\",\n  \"type\": \"MARKET\",\n  \"size\": 5,\n  \"price\": 925.85,\n  \"status\": \"FILLED\",\n  \"dateTime\": \"2026-11-19T11:32:10.300\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "MARKET sell above holdings -> REJECTED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Order status is REJECTED\", () => pm.expect(pm.response.json().status).to.eql(\"REJECTED\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "User 1 holds 40 PAMP, so selling 100 is rejected. The order is stored and the response is 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"SELL\",\n  \"type\": \"MARKET\",\n  \"size\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 - REJECTED",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                },
+                "description": "User 1 holds 40 PAMP, so selling 100 is rejected. The order is stored and the response is 201.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"SELL\",\n  \"type\": \"MARKET\",\n  \"size\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/orders/12"
+                }
+              ],
+              "body": "{\n  \"id\": 16,\n  \"instrumentId\": 47,\n  \"userId\": 1,\n  \"side\": \"SELL\",\n  \"type\": \"MARKET\",\n  \"size\": 100,\n  \"price\": 925.85,\n  \"status\": \"REJECTED\",\n  \"dateTime\": \"2026-11-19T11:32:45.007\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "CASH_IN (incoming transfer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Order status is FILLED\", () => pm.expect(pm.response.json().status).to.eql(\"FILLED\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Must be MARKET and use ARS (instrument 66). Price 1, size = pesos.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 66,\n  \"side\": \"CASH_IN\",\n  \"type\": \"MARKET\",\n  \"amount\": 50000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 - FILLED",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                },
+                "description": "Must be MARKET and use ARS (instrument 66). Price 1, size = pesos.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 66,\n  \"side\": \"CASH_IN\",\n  \"type\": \"MARKET\",\n  \"amount\": 50000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/orders/12"
+                }
+              ],
+              "body": "{\n  \"id\": 17,\n  \"instrumentId\": 66,\n  \"userId\": 1,\n  \"side\": \"CASH_IN\",\n  \"type\": \"MARKET\",\n  \"size\": 50000,\n  \"price\": 1.0,\n  \"status\": \"FILLED\",\n  \"dateTime\": \"2026-11-19T11:33:10.551\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "CASH_OUT (outgoing transfer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "REJECTED (201) if it exceeds the available cash.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 66,\n  \"side\": \"CASH_OUT\",\n  \"type\": \"MARKET\",\n  \"amount\": 10000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 - FILLED",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                },
+                "description": "REJECTED (201) if it exceeds the available cash.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 66,\n  \"side\": \"CASH_OUT\",\n  \"type\": \"MARKET\",\n  \"amount\": 10000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Location",
+                  "value": "/api/v1/orders/12"
+                }
+              ],
+              "body": "{\n  \"id\": 18,\n  \"instrumentId\": 66,\n  \"userId\": 1,\n  \"side\": \"CASH_OUT\",\n  \"type\": \"MARKET\",\n  \"size\": 10000,\n  \"price\": 1.0,\n  \"status\": \"FILLED\",\n  \"dateTime\": \"2026-11-19T11:33:30.120\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Invalid: LIMIT without price -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Malformed request: returns 400 and is not stored.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"LIMIT\",\n  \"size\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "400 - Invalid order request",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                },
+                "description": "Malformed request: returns 400 and is not stored.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"LIMIT\",\n  \"size\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"title\": \"Invalid order request\",\n  \"status\": 400,\n  \"detail\": \"LIMIT orders require a positive price\",\n  \"instance\": \"/api/v1/orders\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Invalid: size and amount together -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Exactly one of size or amount is required.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"MARKET\",\n  \"size\": 1,\n  \"amount\": 1000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "400 - Invalid order request",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                },
+                "description": "Exactly one of size or amount is required.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 1,\n  \"instrumentId\": 47,\n  \"side\": \"BUY\",\n  \"type\": \"MARKET\",\n  \"size\": 1,\n  \"amount\": 1000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"title\": \"Invalid order request\",\n  \"status\": 400,\n  \"detail\": \"exactly one of size or amount must be sent\",\n  \"instance\": \"/api/v1/orders\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cancel the last LIMIT order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{lastOrderId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{lastOrderId}}",
+                "cancel"
+              ]
+            },
+            "description": "Cancels the order created by \"LIMIT buy\" (run that request first)."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel a NEW order (seed order 5)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Order status is CANCELLED\", () => pm.expect(pm.response.json().status).to.eql(\"CANCELLED\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/5/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "5",
+                "cancel"
+              ]
+            },
+            "description": "Seed order 5 is a pending LIMIT buy. Only works once per database."
+          },
+          "response": [
+            {
+              "name": "200 - CANCELLED",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/orders/5/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders",
+                    "5",
+                    "cancel"
+                  ]
+                },
+                "description": "Seed order 5 is a pending LIMIT buy. Only works once per database."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 5,\n  \"instrumentId\": 45,\n  \"userId\": 1,\n  \"side\": \"BUY\",\n  \"type\": \"LIMIT\",\n  \"size\": 50,\n  \"price\": 710.0,\n  \"status\": \"CANCELLED\",\n  \"dateTime\": \"2023-07-12T15:14:20\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cancel a FILLED order -> 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/2/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "2",
+                "cancel"
+              ]
+            },
+            "description": "Only NEW orders can be cancelled."
+          },
+          "response": [
+            {
+              "name": "409 - Not cancellable",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/orders/2/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders",
+                    "2",
+                    "cancel"
+                  ]
+                },
+                "description": "Only NEW orders can be cancelled."
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"title\": \"Order cannot be cancelled\",\n  \"status\": 409,\n  \"detail\": \"Order 2 cannot be cancelled because its status is FILLED; only NEW orders can be cancelled\",\n  \"instance\": \"/api/v1/orders/2/cancel\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cancel an unknown order -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/999/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "999",
+                "cancel"
+              ]
+            },
+            "description": "The order does not exist."
+          },
+          "response": [
+            {
+              "name": "404 - Unknown order",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/orders/999/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders",
+                    "999",
+                    "cancel"
+                  ]
+                },
+                "description": "The order does not exist."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"title\": \"Resource not found\",\n  \"status\": 404,\n  \"detail\": \"Order 999 not found\",\n  \"instance\": \"/api/v1/orders/999/cancel\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "lastOrderId",
+      "value": "5"
+    }
+  ]
+}
