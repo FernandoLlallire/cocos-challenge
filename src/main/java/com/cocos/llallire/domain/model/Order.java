@@ -10,8 +10,8 @@ public record Order(
     Integer size,
     BigDecimal price,
     String type,
-    String side,
-    String status,
+    OrderSide side,
+    OrderStatus status,
     LocalDateTime dateTime
 ) {
 }

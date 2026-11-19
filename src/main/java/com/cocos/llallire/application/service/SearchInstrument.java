@@ -28,7 +28,7 @@ public class SearchInstrument implements SearchInstrumentUseCase {
     }
 
     private InstrumentInformation toInformation(Instrument instrument) {
-        BigDecimal performanceRate = loadMarketdataPort.loadMarketdataByInstrumentId(instrument.id())
+        BigDecimal performanceRate = loadMarketdataPort.loadLastMarketdataByInstrumentId(instrument.id())
                 .map(Marketdata::performanceRate)
                 .orElse(null);
         return new InstrumentInformation(instrument.id(), instrument.ticker(), instrument.name(),

@@ -7,10 +7,6 @@ public final class Returns {
 
     private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
 
-    private Returns() {
-    }
-
-    /** Percentage change from {@code initialValue} to {@code finalValue}. Zero when there is no valid base price. */
     public static BigDecimal percentChange(BigDecimal initialValue, BigDecimal finalValue) {
         if (initialValue == null || finalValue == null || initialValue.signum() == 0) {
             return BigDecimal.ZERO.setScale(Precision.PERCENT_SCALE);

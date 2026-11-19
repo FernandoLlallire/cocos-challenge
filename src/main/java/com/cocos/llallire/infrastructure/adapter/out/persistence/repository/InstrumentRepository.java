@@ -1,6 +1,7 @@
 package com.cocos.llallire.infrastructure.adapter.out.persistence.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +13,6 @@ public interface InstrumentRepository extends JpaRepository<InstrumentEntity, Lo
         String ticker,
         String name
     );
+
+    Optional<InstrumentEntity> findById(Long instrumentId);
 }

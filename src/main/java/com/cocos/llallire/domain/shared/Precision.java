@@ -8,6 +8,4 @@ public final class Precision {
     public static final int PERCENT_SCALE = 2;
     public static final RoundingMode ROUNDING = RoundingMode.HALF_UP;
 
-    private Precision() {
-    }
 }

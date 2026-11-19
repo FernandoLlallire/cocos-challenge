@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record PortfolioInformation(
-        BigDecimal totalValue,
+        BigDecimal totalEquity,
         BigDecimal availableCash,
-        List<PositionInformation> positions) {
+        List<InstrumentPositionInformation> positions) {
 }

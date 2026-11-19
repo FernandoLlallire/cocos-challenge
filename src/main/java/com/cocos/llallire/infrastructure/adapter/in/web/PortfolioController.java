@@ -19,7 +19,7 @@ public class PortfolioController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<PortfolioInformation> getPortfolio(@PathVariable String userId) {
+    public ResponseEntity<PortfolioInformation> getPortfolio(@PathVariable Long userId) {
         return ResponseEntity.ok(getPortfolioUseCase.execute(userId));
     } 
 }

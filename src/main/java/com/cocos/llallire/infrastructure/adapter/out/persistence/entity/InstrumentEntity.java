@@ -3,8 +3,12 @@ package com.cocos.llallire.infrastructure.adapter.out.persistence.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cocos.llallire.domain.model.InstrumentType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,7 +36,8 @@ public class InstrumentEntity {
     private String name;
 
     @Column(name = "type", length = 10)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private InstrumentType type;
 
     @OneToMany(mappedBy = "instrument")
     private List<OrderEntity> orders = new ArrayList<>();

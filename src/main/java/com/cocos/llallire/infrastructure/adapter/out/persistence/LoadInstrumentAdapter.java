@@ -1,6 +1,7 @@
 package com.cocos.llallire.infrastructure.adapter.out.persistence;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -32,5 +33,10 @@ public class LoadInstrumentAdapter implements LoadInstrumentPort {
         return entities.stream()
             .map(EntityMapper::toDomain)
             .toList();
+    }
+
+    @Override
+    public Optional<Instrument> loadInstrumentById(Long instrumentId) {
+        return instrumentRepository.findById(instrumentId).map(EntityMapper::toDomain);
     }
 }

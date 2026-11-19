@@ -2,5 +2,7 @@ package com.cocos.llallire.application.dto;
 
 import java.math.BigDecimal;
 
-public record InstrumentInformation(Long id, String ticker, String name, String type, BigDecimal performanceRate) {
+import com.cocos.llallire.domain.model.InstrumentType;
+
+public record InstrumentInformation(Long id, String ticker, String name, InstrumentType type, BigDecimal performanceRate) {
 }

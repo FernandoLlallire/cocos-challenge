@@ -19,7 +19,7 @@ public class LoadMarketdataAdapter implements LoadMarketdataPort {
     }
 
     @Override
-    public Optional<Marketdata> loadMarketdataByInstrumentId(Long instrumentId) {
+    public Optional<Marketdata> loadLastMarketdataByInstrumentId(Long instrumentId) {
         return marketdataRepository.findFirstByInstrument_IdOrderByDateDescIdDesc(instrumentId)
             .map(EntityMapper::toDomain);
     }
