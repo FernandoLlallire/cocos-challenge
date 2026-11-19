@@ -495,7 +495,9 @@ flowchart LR
 
 ### Qué se ve
 
-**Dashboard "Cocos API"** (carpeta *Cocos*), definido en [`observability/grafana/dashboards/cocos-api.json`](observability/grafana/dashboards/cocos-api.json) y cargado por *provisioning*:
+**Dashboard "Cocos API"** (carpeta *Cocos*), definido en [`observability/grafana/dashboards/cocos-api.json`](observability/grafana/dashboards/cocos-api.json) y cargado por *provisioning*. Con el stack levantado (`make up`) está en http://localhost:3000/d/cocos-api:
+
+![Dashboard "Cocos API" en Grafana: secciones Overview (RED) y Business](docs/images/grafana-dashboard.png)
 
 | Sección | Paneles |
 |---|---|
