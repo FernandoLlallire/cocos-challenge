@@ -1,0 +1,104 @@
+### Collection for the REST Client extension (VS Code) or the IntelliJ HTTP client.
+### Examples use the data in database.sql (user 1, PAMP = instrument 47, ARS = instrument 66).
+
+@baseUrl = http://localhost:8080/api/v1
+
+### Portfolio of user 1
+GET {{baseUrl}}/portfolio/1
+
+### Search assets by ticker or name (case-insensitive)
+GET {{baseUrl}}/instruments?query=pamp
+
+### List all assets
+GET {{baseUrl}}/instruments
+
+### MARKET buy by exact quantity (executes at the latest close -> FILLED)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "instrumentId": 47,
+  "side": "BUY",
+  "type": "MARKET",
+  "size": 10
+}
+
+### MARKET buy by amount in pesos (size = floor(amount / close))
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "instrumentId": 47,
+  "side": "BUY",
+  "type": "MARKET",
+  "amount": 10000
+}
+
+### LIMIT buy (stays NEW and reserves size * price from the available cash)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "instrumentId": 47,
+  "side": "BUY",
+  "type": "LIMIT",
+  "size": 5,
+  "price": 900.50
+}
+
+### MARKET sell (REJECTED if it exceeds the available shares)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "instrumentId": 47,
+  "side": "SELL",
+  "type": "MARKET",
+  "size": 5
+}
+
+### Incoming peso transfer
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "instrumentId": 66,
+  "side": "CASH_IN",
+  "type": "MARKET",
+  "amount": 50000
+}
+
+### Outgoing peso transfer (REJECTED if it exceeds the available cash)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "instrumentId": 66,
+  "side": "CASH_OUT",
+  "type": "MARKET",
+  "amount": 10000
+}
+
+### Cancel a NEW order (seed order 5 is a pending LIMIT)
+POST {{baseUrl}}/orders/5/cancel
+
+### Cancel a FILLED order -> 409 Conflict
+POST {{baseUrl}}/orders/2/cancel
+
+### Invalid request (LIMIT without price) -> 400 Bad Request
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "instrumentId": 47,
+  "side": "BUY",
+  "type": "LIMIT",
+  "size": 1
+}

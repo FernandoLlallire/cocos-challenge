@@ -1,0 +1,11 @@
+# Grafana provisioning: loads the dashboards in /otel-lgtm/cocos-dashboards (mounted from
+# observability/grafana/dashboards) into the "Cocos" folder.
+apiVersion: 1
+
+providers:
+  - name: "Cocos"
+    folder: "Cocos"
+    type: file
+    allowUiUpdates: true
+    options:
+      path: /otel-lgtm/cocos-dashboards

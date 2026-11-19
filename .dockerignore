@@ -1,0 +1,9 @@
+# Only mvnw, .mvn, pom.xml and src are needed to build the image.
+target/
+.git/
+.idea/
+.vscode/
+docs/
+db/
+*.md
+.env

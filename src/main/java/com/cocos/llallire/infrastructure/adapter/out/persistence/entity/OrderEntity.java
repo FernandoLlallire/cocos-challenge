@@ -5,22 +5,24 @@ import java.time.LocalDateTime;
 
 import com.cocos.llallire.domain.model.OrderSide;
 import com.cocos.llallire.domain.model.OrderStatus;
+import com.cocos.llallire.domain.model.OrderType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * JPA mapping of the {@code orders} table. FKs are mapped as ids: the domain only needs the
+ * identifiers, which avoids lazy loading and extra queries.
+ */
 @Entity
 @Table(name = "orders")
 @Getter
@@ -32,13 +34,11 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "instrumentid")
-    private InstrumentEntity instrument;
+    @Column(name = "instrumentid")
+    private Long instrumentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userid")
-    private UserEntity user;
+    @Column(name = "userid")
+    private Long userId;
 
     @Column(name = "size")
     private Integer size;
@@ -47,7 +47,8 @@ public class OrderEntity {
     private BigDecimal price;
 
     @Column(name = "type", length = 10)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private OrderType type;
 
     @Column(name = "side", length = 10)
     @Enumerated(EnumType.STRING)

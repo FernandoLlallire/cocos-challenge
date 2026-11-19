@@ -1,20 +1,65 @@
+# Alternative to the Makefile: `docker compose up -d --build` (or `podman compose up -d --build`).
 services:
   postgres:
-    image: postgres:16
+    image: docker.io/library/postgres:16
     environment:
       POSTGRES_DB: cocos
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database.sql:/docker-entrypoint-initdb.d/01-database.sql:ro
+      - ./database.sql:/docker-entrypoint-initdb.d/01-database.sql:ro,z
+      - ./db/indexes.sql:/docker-entrypoint-initdb.d/02-indexes.sql:ro,z
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d cocos"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d cocos"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  redis:
+    image: docker.io/library/redis:7-alpine
+    # Pure cache: no persistence, bounded memory, least-recently-used eviction.
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  otel:
+    # Grafana + Prometheus + Loki + Tempo + OpenTelemetry Collector in one container (http://localhost:3000).
+    image: docker.io/grafana/otel-lgtm:0.38.1
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:4318:4318"
+    volumes:
+      - ./observability/grafana/cocos-dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/cocos-dashboards.yaml:ro,z
+      - ./observability/grafana/dashboards:/otel-lgtm/cocos-dashboards:ro,z
+
+  api:
+    build: .
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/cocos
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      CACHE_TYPE: redis
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel:4318
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      otel:
+        condition: service_started
 
 volumes:
   postgres_data:

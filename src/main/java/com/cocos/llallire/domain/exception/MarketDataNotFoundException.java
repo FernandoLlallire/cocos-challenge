@@ -1,7 +1,16 @@
 package com.cocos.llallire.domain.exception;
 
-public class MarketDataNotFoundException extends RuntimeException {
-    public MarketDataNotFoundException(long instrumentId) {
-        super("MarketData for instrumenId %d not found".formatted(instrumentId));
+/**
+ * There is no marketdata for the instrument, so it cannot be priced.
+ */
+public class MarketDataNotFoundException extends ResourceNotFoundException {
+
+    /**
+     * Creates the exception for the given instrument.
+     *
+     * @param instrumentId instrument without marketdata
+     */
+    public MarketDataNotFoundException(Long instrumentId) {
+        super("Marketdata for instrument %d not found".formatted(instrumentId));
     }
 }
